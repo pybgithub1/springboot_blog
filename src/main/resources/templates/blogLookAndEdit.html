@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:display="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>添加文章</title>
+    <link rel="stylesheet" href="/editormd/css/style.css"
+          th:href="@{/editormd/css/style.css}"/>
+    <link rel="stylesheet" href="/editormd/css/editormd.css"
+          th:href="@{/editormd/css/editormd.css}"/>
+    <link rel="shortcut icon"
+          href="https://pandao.github.io/editor.md/favicon.ico"
+          type="image/x-icon"/>
+    <style>
+        .row {
+            float: right;
+            padding-top: 20px;
+            padding-right: 100px;
+            padding-bottom: 20px;
+        }
+
+        h1, th {
+            text-align: center;
+        }
+
+        #textarea {
+            padding-left: 60px;
+        }
+
+        textarea {
+            padding-left: 20px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1>展示文章页面</h1>
+
+<div id="layout">
+    <form method="post" action="/myblog/blogEdit" name="mdEditorForm">
+        <div class="row">
+            <span>序号</span>
+            <input type="text" class="form-control" name="bid" display:inline th:value="${blog.bid}" readonly>
+            <span>作者</span>
+            <input type="text" class="form-control" name="author" display:inline th:value="${blog.author}" readonly>
+            <span>标题</span>
+            <input type="text" class="form-control" name="title" display:inline th:value="${blog.title}">
+            <span>描述</span>
+            <input type="text" class="form-control" name="description" display:inline th:value="${blog.description}">
+            <input type="submit" name="submit" value="更新文章">
+        </div>
+
+        <div id="textarea">
+            <textarea name="content" type="text" th:text="${blog.content}" rows="60" cols="250">文章的内容</textarea>
+        </div>
+
+    </form>
+
+</div>
+<script src="/editormd/js/jquery.min.js"
+        th:src="@{/editormd/js/jquery.min.js}"></script>
+<script src="/editormd/editormd.js"
+        th:src="@{/editormd/editormd.js}"></script>
+<script type="text/javascript">
+    var testEditor;
+
+    $(function () {
+        testEditor = editormd("textarea", {
+            width: "90%",
+            height: 640,
+            syncScrolling: "single",
+            path: "/editormd/lib/",
+
+            /**下述为新增，上面一行记得加逗号结束*/
+            /*指定需要显示的功能按钮*/
+            toolbarIcons: function () {
+                return ["undo", "redo", "|", "bold", "italic", "ucwords", "uppercase", "lowercase", "|", "h1", "h2", "h3", "h4", "h5", "h6", "|", "list-ul", "list-ol", "table", "datetime", "hr", "||", "watch", "fullscreen", "preview", "releaseIcon", "index"]
+            },
+        });
+    });
+
+
+</script>
+</body>
+</html>

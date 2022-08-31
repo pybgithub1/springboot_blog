@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:display="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>添加文章</title>
+    <link rel="stylesheet" href="/editormd/css/style.css"
+          th:href="@{/editormd/css/style.css}"/>
+    <link rel="stylesheet" href="/editormd/css/editormd.css"
+          th:href="@{/editormd/css/editormd.css}"/>
+    <link rel="shortcut icon"
+          href="https://pandao.github.io/editor.md/favicon.ico"
+          type="image/x-icon"/>
+    <style>
+        .row{
+            float: right;
+            padding-right: 100px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1>添加文章页面</h1>
+
+<div id="layout">
+    <!--在外层定义一个form，用来取值和提交表单-->
+    <!--   <form name="mdEditorForm">
+
+           <div class="form-group">
+               <div class="col-xs-12">
+                   <input type="text" class="form-control" name="title"
+                          placeholder="请输入标题">
+               </div>
+           </div>
+
+           <div id="test-editormd">
+               &lt;!&ndash;该区域内容为文字内容，非html内容&ndash;&gt;
+               <textarea name="content" id="content" style="display:none;">这是我要提交的内容啊</textarea>
+           </div>
+
+
+
+       </form>-->
+    <form method="post" action="/myblog/blogSave" name="mdEditorForm">
+        <div class="row">
+            <input type="text" class="form-control" name="title" display:inline placeholder="请输入标题">
+
+            <input type="text" class="form-control" name="description" display:inline placeholder="请输入描述">
+
+            <button type="submit" name="submit">发布文章</button>
+        </div>
+        <div id="test-editormd">
+            <textarea name="content" id="content" style="display: none;">正文内容</textarea>
+        </div>
+
+
+    </form>
+</div>
+<script src="/editormd/js/jquery.min.js"
+        th:src="@{/editormd/js/jquery.min.js}"></script>
+<script src="/editormd/editormd.js"
+        th:src="@{/editormd/editormd.js}"></script>
+<script type="text/javascript">
+    var testEditor;
+
+    $(function () {
+        testEditor = editormd("test-editormd", {
+            width: "90%",
+            height: 640,
+            syncScrolling: "single",
+            path: "/editormd/lib/",
+
+
+            /**下述为新增，上面一行记得加逗号结束*/
+            /*指定需要显示的功能按钮*/
+            toolbarIcons: function () {
+                return ["undo", "redo", "|", "bold", "italic", "ucwords", "uppercase", "lowercase", "|", "h1", "h2", "h3", "h4", "h5", "h6", "|", "list-ul", "list-ol", "table", "datetime", "hr", "||", "watch", "fullscreen", "preview", "releaseIcon", "index"]
+            },
+
+            /* /!*自定义功能按钮，下面我自定义了2个，一个是发布，一个是返回首页*!/
+             toolbarIconTexts: {
+                 releaseIcon: "<span bgcolor=\"gray\">发布</span>",
+                 index: "<span bgcolor=\"red\">返回首页</span>",
+             },
+
+             /!*给自定义按钮指定回调函数*!/
+             toolbarHandlers: {
+                 releaseIcon: function (cm, icon, cursor, selection) {
+                     contentCommit();//提交表单代码在下面
+                     console.log("日志输出 testIcon =>", this, cm, icon, cursor, selection);
+                 },
+                 index: function () {
+                     window.location.href = 'blogIndex.html';
+                 },
+             }*/
+
+        });
+
+    });
+
+
+    /*提交表单的js*/
+    /*   function contentCommit() {
+           mdEditorForm.method = "post";
+           mdEditorForm.action = "/myblog/adminBlogSave";//提交至服务器的路径
+           mdEditorForm.submit();
+       }*/
+</script>
+</body>
+</html>

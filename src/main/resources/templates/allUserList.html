@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>展示页面</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/my.css">
+    <style>
+        * {
+            margin: auto;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        /* 导航条 */
+        .topnav {
+            overflow: hidden;
+            background-color: darkgrey;
+        }
+
+        /* 内容展示区域中间列 */
+        .table {
+            background-color: whitesmoke;
+            text-align: center;
+            width: 60%;
+            margin-left: 340px;
+            padding-left: 80px;
+            padding-top: 20px;
+            padding-bottom: 600px;
+        }
+
+        .ta{
+            width: 90%;
+        }
+
+        .tab{
+            height:50px;
+        }
+
+        h1, th {
+            text-align: center;
+        }
+
+        /* 链接的不同状态展示 */
+        a:link {
+            text-decoration: none;
+        }
+
+        /* unvisited link */
+        a:visited {
+            text-decoration: none;
+        }
+
+        /* visited link */
+        a:hover {
+            text-decoration: none;
+            color: #0f0f0f;
+        }
+
+        /* mouse over link */
+        a:active {
+            text-decoration: none;
+        }
+
+        td a {
+            color: blue;
+        }
+
+        .td{
+            width: 150px;
+        }
+
+
+    </style>
+</head>
+
+<body>
+<div class="topnav">
+    <h1>展示所有用户列表页面</h1>
+</div>
+
+<div class="table">
+    <table  class="table-bordered ta">
+        <thead>
+        <tr>
+            <th class="tab">uid</th>
+            <th class="tab">name</th>
+            <th class="tab">password</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="user:${users}">
+            <td class="tab" th:text="${user.uid}">序号</td>
+            <td class="tab" th:text="${user.name}">用户名称</td>
+            <td class="tab" th:text="${user.password}">用户密码</td>
+            <td class="td">
+                <a th:href="'/blogUser/lookUserBlogList/'+${user.name}">查看</a>
+            </td>
+            <td class="td">
+                <a th:href="'/blogUser/silencedUser/'+${user.name}">禁言</a>
+            </td>
+            <td class="td">
+                <a th:href="'/blogUser/RemoveSilencedUser/'+${user.name}">解除禁言</a>
+            </td>
+        </tr>
+        </tbody>
+
+    </table>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.min.js"></script>
+    <script src="http://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <style type="text/css">
+
+        body {
+            width: 100%;
+            height: 100%;
+            border: 1px solid gray;
+            margin: 0 auto 0;
+            background: gainsboro;
+        }
+
+        .index {
+            width: 800px;
+            height: 600px;
+            background-color: floralwhite;
+            margin: 50px auto;
+            padding-top: 80px;
+            padding-left: 75px;
+            text-align: center;
+
+        }
+
+        .center {
+            /*overflow-y: scroll;*/
+            width: 100px;
+            height: 500px;
+            border: 1px solid #666;
+            margin: 0 auto 0;
+            background: #f9f9f9;
+            float: left;
+        }
+
+        .center ul {
+            padding-left: 10px;
+        }
+
+        .center li {
+            margin: 10px;
+        }
+
+        .talk_con {
+            width: 600px;
+            height: 500px;
+            border: 1px solid #666;
+            margin: 0 auto 0;
+            background: #f9f9f9;
+            float: left;
+        }
+
+        .talk_show {
+            width: 580px;
+            height: 420px;
+            border: 1px solid #666;
+            background: #fff;
+            margin: 10px auto 0;
+            /*overflow: auto;*/
+        }
+
+        .talk_input {
+            width: 580px;
+            margin: 10px auto 0;
+        }
+
+        .whotalk {
+            width: 80px;
+            height: 30px;
+            float: left;
+            outline: none;
+        }
+
+        .talk_word {
+            width: 420px;
+            height: 26px;
+            padding: 0px;
+            float: left;
+            margin-left: 10px;
+            outline: none;
+            text-indent: 10px;
+        }
+
+        .talk_sub {
+            width: 56px;
+            height: 30px;
+            float: left;
+            margin-left: 10px;
+        }
+
+        .atalk {
+            margin: 10px;
+            text-align: left;
+        }
+
+        .atalk span {
+            display: inline-block;
+            background: #0181cc;
+            border-radius: 10px;
+            color: #fff;
+            padding: 5px 10px;
+        }
+
+        .btalk {
+            margin: 10px;
+            text-align: right;
+        }
+
+        .btalk span {
+            display: inline-block;
+            background: #ef8201;
+            border-radius: 10px;
+            color: #fff;
+            padding: 5px 10px;
+        }
+    </style>
+
+</head>
+<body>
+<!--聊天用户的列表-->
+<div class="index">
+
+    <div class="center">
+        <ul>
+            <li>
+                <img style="width: 30px;height: 40px;border-radius: 20px; vertical-align: middle;" src="/img/user.jpg">
+                <span style="margin-left: 10px;">Barack Obama</span>
+            </li>
+            <li>
+                <img style="width: 30px;height: 40px;border-radius: 20px; vertical-align: middle;" src="/img/user.jpg">
+                <span style="margin-left: 10px;">Barack Obama</span>
+            </li>
+            <li>
+                <img style="width: 30px;height: 40px;border-radius: 20px; vertical-align: middle;" src="/img/user.jpg">
+                <span style="margin-left: 10px;">Barack Obama</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="talk_con">
+
+        <!--  聊天记录显示页面-->
+        <div id="words" class="talk_show">
+            <div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">hello!</span>
+            </div>
+            <div class="btalk"><span style="margin-right: 5px">hello!</span><img src="/img/user.jpg"
+                                                                                 style="width: 30px;height: 40px"></div>
+        </div>
+
+        <!--聊天输入框-->
+        <div class="talk_input">
+            <select id="onLineUser" class="whotalk">
+                <option>所有人</option>
+            </select>
+            <input type="text" id="talkwords" class="talk_word">
+            <input type="button" value="发送" id="talksub" class="talk_sub">
+        </div>
+
+        <!--websocket显示以及当前websocket的所有者的username-->
+        <div id="index" style="text-align: center;"></div>
+        <div id="message" style="text-align: center"></div>
+        <input type="text" th:value="${username}" id="username" style="display: none"/>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    window.onload = function () {
+        var webSocket;
+        var x;
+        var y;
+        webSocket = new WebSocket("ws://localhost:8800/websocket/" + document.getElementById('username').value);
+        //连通之后的回调事件
+        webSocket.onopen = function () {
+            console.log("已经连通了websocket");
+            setMessage("已经连通了websocket");
+        };
+
+        //接收后台服务端的消息
+        webSocket.onmessage = function (evt) {
+            var received_msg = evt.data;
+            console.log("数据已接收:" + received_msg);
+            var obj = JSON.parse(received_msg);
+            console.log("可以解析成json:" + obj.messageType);
+            //1代表上线 2代表下线 3代表在线名单 4代表普通消息
+            if (obj.messageType == 1) {
+                //把名称放入到selection当中供选择
+                var onlineName = obj.username;
+                var option = "<option>" + onlineName + "</option>";
+                $("#onLineUser").append(option);
+                showMessageInnerHTML(onlineName + "上线了");
+            } else if (obj.messageType == 2) {
+                $("#onLineUser").empty();
+                var onlineName = obj.onlineUsers;
+                var offlineName = obj.username;
+                var option = "<option>" + "所有人" + "</option>";
+                for (var i = 0; i < onlineName.length; i++) {
+                    if (!(onlineName[i] == document.getElementById('username').value)) {
+                        option += "<option>" + onlineName[i] + "</option>"
+                    }
+                }
+                $("#onLineUser").append(option);
+                showMessageInnerHTML(offlineName + "下线了");
+            } else if (obj.messageType == 3) {
+                var onlineName = obj.onlineUsers;
+                names = onlineName;
+                var option = null;
+                for (var i = 0; i < onlineName.length; i++) {
+                    if (!(onlineName[i] == document.getElementById('username').value)) {
+                        option += "<option>" + onlineName[i] + "</option>"
+                    }
+                }
+                $("#onLineUser").append(option);
+                console.log("获取了在线的名单" + onlineName.toString());
+            } else {
+                var text = document.getElementById('username').value;
+                var str = "";
+                Words.innerHTML = "";
+                $.ajax({
+                    url: '/blogmsg/msg',
+                    type: 'get',
+                    data: {"fromuser": obj.fromuser, "touser": text},
+                    success: function (data) {
+                        x = data[0].mid;
+                        y = data[data.length - 1].mid;
+                        //接收消息时候，先刷新出两个用户历史聊天记录，如果后台返回来7条，则进行下面if逻辑，如果后台返回来小于7条，则进行else逻辑
+                        if (data.length == 7) {
+                            for (let i = 1; i < 7; i++) {
+                                if (data[i].fromuser == text) {
+                                    str = '<div class="btalk"><span style="margin-left: 5px">' + text + '对' + data[i].touser + '说 :' + data[i].msg + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                } else {
+                                    str = '<div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">' + data[i].fromuser + '对' + text + '说 :' + data[i].msg + '</span></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                }
+                            }
+                        } else {
+                            for (let i = 0; i < data.length; i++) {
+                                if (data[i].fromuser == text) {
+                                    str = '<div class="btalk"><span style="margin-left: 5px">' + text + '对' + data[i].touser + '说 :' + data[i].msg + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                } else {
+                                    str = '<div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">' + data[i].fromuser + '对' + text + '说 :' + data[i].msg + '</span></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        };
+
+        var Words = document.getElementById("words");
+        var TalkWords = document.getElementById("talkwords");
+        var TalkSub = document.getElementById("talksub");
+        var text = document.getElementById('username').value;
+        var j;
+
+        document.getElementById("onLineUser").onchange = function () {
+            var vs = $('#onLineUser').val();
+            // alert("跳转到用户"vs"的聊天页面进行聊天");
+            Words.innerHTML = "";
+            $.ajax({
+                    url: '/blogmsg/msg',
+                    type: 'get',
+                    data: {"fromuser": text, "touser": vs},
+                    success: function (data) {
+                        var str = "";
+                        x = data[0].mid;
+                        y = data[data.length - 1].mid;
+                        for (let i = 0; i < data.length; i++) {
+                            // console.log(data);
+                            if (data[i].fromuser == text) {
+                                str = '<div class="btalk"><span style="margin-left: 5px">' + text + '对' + data[i].touser + '说 :' + data[i].msg + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                                Words.innerHTML = Words.innerHTML + str;
+                            } else {
+                                str = '<div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">' + data[i].fromuser + '对' + text + '说 :' + data[i].msg + '</span></div>';
+                                Words.innerHTML = Words.innerHTML + str;
+                            }
+                        }
+                        j = data.length;
+                    }
+                }
+            )
+
+        }
+
+
+        TalkSub.onclick = function () {
+            var selectText = $("#onLineUser").find("option:selected").text();
+            var str = "";
+            //如果selectText是所有人，则使得输入框不可用，禁止给所有人发消息
+            if (selectText == "所有人") {
+                alert("暂时不能发送群消息！请重新选择用户进行发送")
+                TalkSub.attrs("disabled", true);
+            }
+            //消息为空，则弹出提示
+            if (TalkWords.value == "") {
+                // 消息为空时弹窗
+                alert("消息不能为空");
+                return;
+            } else {
+                //消息不为空，则进行正常的发消息处理逻辑
+                if (j >= 7) {
+                    Words.innerHTML = "";
+                    $.ajax({
+                        url: '/blogmsg/msg',
+                        type: 'get',
+                        data: {"fromuser": text, "touser": selectText},
+                        success: function (data) {
+                            x = data[1].mid;
+                            y = data[data.length - 1].mid + 1;
+                            var str = "";
+                            for (let i = 1; i < data.length; i++) {
+                                if (data[i].fromuser == text) {
+                                    str = '<div class="btalk"><span style="margin-left: 5px">' + text + '对' + data[i].touser + '说 :' + data[i].msg + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                } else {
+                                    str = '<div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">' + data[i].fromuser + '对' + text + '说 :' + data[i].msg + '</span></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                }
+                            }
+                        }
+                    });
+                    str = '<div class="btalk"><span style="margin-right: 5px">' + text + '对' + selectText + '说 :' + TalkWords.value + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                    //设置延时发送，等待上面ajax请求以前的6条聊天记录
+                    setTimeout(() => {
+                        Words.innerHTML = Words.innerHTML + str;
+                        j = 7;
+                    }, 200);
+
+                } else {
+                    str = '<div class="btalk"><span style="margin-right: 5px">' + text + '对' + selectText + '说 :' + TalkWords.value + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                    Words.innerHTML = Words.innerHTML + str;
+                    $.ajax({
+                        url: '/blogmsg/msgnum',
+                        type: 'get',
+                        data: {"fromuser": text, "touser": selectText},
+                        success: function (data) {
+                            j = data + 1;
+                        }
+                    })
+
+                    $.ajax({
+                        url: '/blogmsg/msg',
+                        type: 'get',
+                        data: {"fromuser": text, "touser": selectText},
+                        success: function (data) {
+                            x = data[0].mid;
+                            y = data[data.length - 1].mid;
+                        }
+                    })
+
+                }
+
+            }
+
+
+            //最后将要发送的消息打包成整体的消息发送给后端服务器
+
+            var message = {
+                "message": document.getElementById('talkwords').value,
+                "username": document.getElementById('username').value,
+                "to": selectText
+            };
+            //前端页面给后端服务器发送该用户给另一个用户要发送的消息
+            webSocket.send(JSON.stringify(message));
+            $("#talkwords").val("");
+
+        }
+
+        $(document).bind('mousewheel DOMMouseScroll', function (event) { //on也可以 bind监听
+            //Chorme/IE
+            var wheel = event.originalEvent.wheelDelta;
+            var detal = event.originalEvent.detail;
+
+            if (event.originalEvent.wheelDelta) { //判断浏览器IE,谷歌滚轮事件
+                var selectText = $("#onLineUser").find("option:selected").text();
+                if (wheel > 0) { //当滑轮向上滚动时
+                    // alert('上滚')
+                    // alert(x);
+                    Words.innerHTML = "";
+                    $.ajax({
+                        url: '/blogmsg/gundongmsg',
+                        type: 'get',
+                        data: {"fromuser": text, "touser": selectText, "status": "top", "mid": x},
+                        success: function (data) {
+                            x = data[0].mid;
+                            y = data[data.length - 1].mid;
+                            // console.log(data);
+                            var str = "";
+                            for (let i = 0; i < data.length; i++) {
+                                if (data[i].fromuser == text) {
+                                    str = '<div class="btalk"><span style="margin-left: 5px">' + text + '对' + data[i].touser + '说 :' + data[i].msg + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                } else {
+                                    str = '<div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">' + data[i].fromuser + '对' + text + '说 :' + data[i].msg + '</span></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                }
+                            }
+                        }
+                    })
+
+                }
+                if (wheel < 0) { //当滑轮向下滚动时
+                    // alert('下滚');
+                    // alert(y);
+                    Words.innerHTML = "";
+                    $.ajax({
+                        url: '/blogmsg/gundongmsg',
+                        type: 'get',
+                        data: {"fromuser": text, "touser": selectText, "status": "bottom", "mid": y},
+                        success: function (data) {
+                            // console.log(data);
+                            x = data[0].mid;
+                            y = data[data.length - 1].mid;
+                            var str = "";
+                            for (let i = 0; i < data.length; i++) {
+                                if (data[i].fromuser == text) {
+                                    str = '<div class="btalk"><span style="margin-left: 5px">' + text + '对' + data[i].touser + '说 :' + data[i].msg + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                } else {
+                                    str = '<div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">' + data[i].fromuser + '对' + text + '说 :' + data[i].msg + '</span></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                }
+                            }
+                        }
+                    })
+
+                }
+
+            } else if (event.originalEvent.detail) {  //Firefox滚轮事件
+                var selectText = $("#onLineUser").find("option:selected").text();
+                if (detal > 0) { //当滑轮向下滚动时
+                    // alert('下滚');
+                    // alert(y);
+                    Words.innerHTML = "";
+                    $.ajax({
+                        url: '/blogmsg/gundongmsg',
+                        type: 'get',
+                        data: {"fromuser": text, "touser": selectText, "status": "bottom", "mid": y},
+                        success: function (data) {
+                            // console.log(data);
+                            x = data[0].mid;
+                            y = data[data.length - 1].mid;
+                            var str = "";
+                            for (let i = 0; i < data.length; i++) {
+                                if (data[i].fromuser == text) {
+                                    str = '<div class="btalk"><span style="margin-left: 5px">' + text + '对' + data[i].touser + '说 :' + data[i].msg + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                } else {
+                                    str = '<div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">' + data[i].fromuser + '对' + text + '说 :' + data[i].msg + '</span></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                }
+                            }
+                        }
+                    })
+                }
+                if (detal < 0) { //当滑轮向上滚动时
+                    // alert('上滚');
+                    // alert(x);
+                    Words.innerHTML = "";
+                    $.ajax({
+                        url: '/blogmsg/gundongmsg',
+                        type: 'get',
+                        data: {"fromuser": text, "touser": selectText, "status": "top", "mid": x},
+                        success: function (data) {
+                            x = data[0].mid;
+                            y = data[data.length - 1].mid;
+                            // console.log(data);
+                            var str = "";
+                            for (let i = 0; i < data.length; i++) {
+                                if (data[i].fromuser == text) {
+                                    str = '<div class="btalk"><span style="margin-left: 5px">' + text + '对' + data[i].touser + '说 :' + data[i].msg + '</span><img src="/img/user.jpg" style="width: 30px;height: 40px"></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                } else {
+                                    str = '<div class="atalk"><img src="/img/user.jpg" style="width: 30px;height: 40px"><span style="margin-left: 5px">' + data[i].fromuser + '对' + text + '说 :' + data[i].msg + '</span></div>';
+                                    Words.innerHTML = Words.innerHTML + str;
+                                }
+                            }
+                        }
+                    })
+                }
+
+            }
+        });
+
+
+        //联通之后将index所指示的消息显示在网页上具体内容为已经连通了websocket
+        function setMessage(innerHTML) {
+            document.getElementById('index').innerHTML += innerHTML + '<br/>';
+        }
+
+        //联通之后将index所指示的消息显示在网页上具体内容为已经连通了websocket
+        function showMessageInnerHTML(innerHTML) {
+            alert(innerHTML);
+        }
+
+        //连接关闭的回调事件
+        webSocket.onclose = function () {
+            console.log("连接已关闭...");
+            showMessageInnerHTML("连接已经关闭....");
+        };
+
+        //直接关闭websocket的连接
+        function closeWebSocket() {
+            webSocket.close();
+        }
+    }
+
+
+</script>
+</body>
+</html>

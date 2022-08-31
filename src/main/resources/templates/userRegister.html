@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>注册页面</title>
+    <link rel="stylesheet" href="/css/my.css">
+    <style>
+        body {
+            background-color: #dddddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .login {
+            width: 300px;
+            height: 400px;
+            background-color: floralwhite;
+            margin: 180px auto;
+            padding-top: 80px;
+            text-align: center;
+
+        }
+
+        .login p {
+            margin-bottom: 15px;
+        }
+
+        #name, #password {
+            text-align: center
+        }
+
+    </style>
+</head>
+<body>
+<!--<form  action="/admin/login" method="post">
+
+    <h4 th:text="${error}">提示注册错误信息</h4>
+    <p>新管理员名称: <input type="text" name="name" placeholder="name"/></p>
+    <p>新管理员密码: <input type="text" name="password" placeholder="password"/></p>
+    <p><input type="submit" value="注册"/></p>
+
+</form>-->
+<div class="login">
+    <form  action="/register/registerIn" method="post">
+        <p style="color: red" th:text="${error}">提示注册错误信息</p>
+        <p>账号:</p>
+        <input id="name" type="text" name="name" placeholder="name"/><br/><br/>
+        <p>密码:</p>
+        <input id="password" type="text" name="password" placeholder="password"/><br/><br/>
+        <p><input type="submit" value="注册"/></p>
+    </form>
+
+</div>
+</body>
+</html>

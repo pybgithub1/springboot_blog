@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:display="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>登录页面</title>
+    <link rel="stylesheet" href="/css/my.css">
+    <style>
+
+        body {
+            background-color: #dddddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .index {
+            width: 350px;
+            height: 450px;
+            background-color: floralwhite;
+            margin: 180px auto;
+            padding-top: 80px;
+            text-align: center;
+
+        }
+
+        .index p {
+            margin-bottom: 15px;
+        }
+
+        #name, #password {
+            text-align: center
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        #verify {
+            text-align: center;
+            width: 120px;
+        }
+
+        .verify{
+            margin-bottom: 10px;
+        }
+
+    </style>
+
+
+</head>
+
+<body>
+<div class="index">
+    <form action="/login/loginAdminIn" method="post">
+        <p style="color: red" th:text="${error}" th:if="${not #strings.isEmpty(error)}">错误提示信息</p>
+        <p>管理员名称</p>
+        <input id="name" type="text" name="name" placeholder="name"/><br/><br/>
+        <p>管理员密码</p>
+        <input id="password" type="password" name="password" placeholder="password"/><br/><br/>
+        <p>验证码</p>
+        <input id="verify" type="text" name="input"  style="margin-bottom: 10px" placeholder="请输入验证码"><br/>
+        <div class="verify">
+            <p th:text="${verify}" style="display: inline-block"></p>
+            <a href="/verify/getVerifyCodeAdmin">刷新</a><br/>
+        </div>
+        <input type="submit" value="登录"/>
+    </form>
+
+</div>
+</body>
+</html>
+

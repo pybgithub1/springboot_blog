@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>展示页面</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/my.css">
+    <script src="../js/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            //进入当前页面之后就发送ajax请求，请求点赞总数目
+            $.ajax({
+                    url: '/allblog/allzanlist',
+                    type: 'get',
+                    success: function (data) {
+                        for (let i = 0; i < span.length; i++) {
+                            var datum = data[i];
+                            span[i].innerHTML = datum;
+                        }
+
+                    }
+                }
+            )
+
+            //进入当前页面之后就发送ajax请求，请求评论的总数目
+            var div1 = document.querySelectorAll(".div");
+            var span1 = document.querySelectorAll(".span1");
+            $.ajax({
+                    url: '/comment/allcommentnums',
+                    type: 'get',
+                    success: function (map) {
+                        for (let i = 0; i < div1.length; i++) {
+                            var value = div1[i].innerText;
+                            for (var key in map) {
+                                if (value == key) {
+                                    span1[i].innerHTML = map[key];
+                                }
+
+                            }
+                        }
+                    }
+                }
+            )
+
+            //进行点赞相关的逻辑操作
+            var Btn_zan = document.querySelectorAll(".img");
+            var span = document.querySelectorAll(".span");
+            var div = document.querySelectorAll(".div");
+            for (let i = 0; i < Btn_zan.length; i++) {
+                var flag;
+                var status = new Array(Btn_zan.length);
+                status[i] = "true";
+                Btn_zan[i].onclick = function () {
+                    var text = div[i].innerText;
+                    if (status[i] == text + "_true") {
+                        flag = false;
+                    } else if (status[i] == text + "_false") {
+                        flag = true;
+                    } else {
+                        flag = true;
+                    }
+                    if (flag == true) {
+                        //进行点赞操作，发送ajax请求，传递参数：文章的bid,要求后端返回该文章该次点赞过后的点赞数目num
+                        $.ajax({
+                            url: '/like/liked/' + text,
+                            type: 'get',
+                            success: function (data) {
+                                span[i].innerHTML = data;
+                                flag = false;
+                                status[i] = text + "_true";
+                            }
+                        })
+                    } else {
+                        //进行取消点赞操作，发送ajax请求，传递参数：文章的bid,要求后端返回该文章该次取消点赞过后的点赞数目num
+                        $.ajax({
+                            url: '/like/unliked/' + text,
+                            type: 'get',
+                            success: function (data) {
+                                span[i].innerHTML = data;
+                                flag = true;
+                                status[i] = text + "_false";
+                            }
+                        })
+
+                    }
+                }
+            }
+
+
+        })
+
+    </script>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: burlywood;
+        }
+
+        /* 搜索行*/
+        .search {
+            padding-top: 10px;
+            padding-left: 146px;
+            background-color: #333;
+        }
+
+        /* 创建三个相等的列 */
+        .column {
+            float: left;
+        }
+
+        /* 列后清除浮动 */
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* 内容展示区域左边列 */
+        .left-table {
+            background-color: white;
+            padding-left: 40px;
+            margin-left: 30px;
+            margin-right: 30px;
+            width: 25%;
+        }
+
+        /* 内容展示区域中间列 */
+        .table {
+            background-color: white;
+            padding-left: 40px;
+            padding-right: 40px;
+            width: 40%;
+        }
+
+        /* 内容展示区域右边列 */
+        .right-table {
+            background-color: white;
+            padding-left: 40px;
+            margin-left: 30px;
+            width: 25%;
+        }
+
+        .tr {
+            text-align: left;
+        }
+
+        h1, th {
+            text-align: center;
+        }
+
+        /* 链接的不同状态展示 */
+        a:link {
+            text-decoration: none;
+        }
+
+        /* unvisited link */
+        a:visited {
+            text-decoration: none;
+        }
+
+        /* visited link */
+        a:hover {
+            text-decoration: none;
+            color: #0f0f0f;
+        }
+
+        /* mouse over link */
+        a:active {
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="container-fluid search">
+    <form class="navbar-form navbar-left" action="/allblog/keyword" method="post">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="搜文章" name="keyword">
+        </div>
+        <button type="submit" class="btn btn-default">submit</button>
+    </form>
+</div>
+
+<div class="row">
+
+    <div class="left-table column">
+        <label>最近更新</label>
+        <div th:each="blog1 : ${blogs1}">
+            <p>
+                <a th:href="'/allblog/allBlogLook/'+${blog1.bid}" th:text="${blog1.title}"></a>
+            </p>
+        </div>
+    </div>
+
+    <div class="table column">
+        <div th:each="blog : ${blogs}">
+            <div class="tr">
+                <p>
+                    <a class="div" th:text="${blog.bid}">序号</a>
+                    <a th:href="'/allblog/allBlogLook/'+${blog.bid}" th:text="${blog.title}">标题</a>
+                </p>
+                <p>
+                    <em class="form-control blog-size"
+                        th:text="${blog.description}"></em>
+                </p>
+                <p>
+                    <img class="img" src="../img/zan.jpg" style="width: 30px;height: 50px;margin-left: 20px">
+                    <span class="span">0</span>
+                    <a th:href="'/comment/comment/'+${blog.bid}">
+                        <img class="comment" src="../img/comment.jpg"
+                             style="width: 30px;height: 35px;margin-left: 20px"/>
+                    </a>
+                    <span class="span1">0</span>
+                    <a th:href="'/myfocus/mayFoucsUser/'+${blog.author}" style="float: right;margin-right: 30px"
+                       th:text="${blog.author}"></a>
+                </p></br></br>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="right-table column">
+        <label>热点文章</label>
+        <div th:each="blog2 : ${blogs2}">
+            <p>
+                <a th:href="'/allblog/allBlogLook/'+${blog2.bid}" th:text="${blog2.title}"></a>
+            </p>
+        </div>
+    </div>
+
+</div>
+
+
+</body>
+
+</html>

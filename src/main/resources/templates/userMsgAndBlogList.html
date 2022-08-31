@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>我的博客列表</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/my.css">
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function () {
+            var focus = document.getElementById("focus");
+            var div = document.getElementById("div");
+            focus.onclick = function () {
+                var text = div.innerText;
+                var of = focus.value;
+                if (focus.value == "关注") {
+                    $.ajax({
+                            url: '/myfocus/focus/' + text,
+                            type: 'get',
+                            success: function (data) {
+                                focus.value = data;
+
+                            }
+                        }
+                    );
+                } else {
+                    $.ajax({
+                            url: '/myfocus/quitFocus1/' + text,
+                            type: 'get',
+                            success: function (data) {
+                                focus.value = data;
+                                flag = true;
+                            }
+                        }
+                    )
+                }
+            }
+
+        })
+
+    </script>
+    <style>
+
+        * {
+            margin: auto;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        /* 导航条 */
+        .topnav {
+            overflow: hidden;
+            background-color: darkgrey;
+        }
+
+        /* 创建两个相等的列 */
+        .column {
+            float: left;
+        }
+
+        /* 列后清除浮动 */
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* 内容展示区域左边列 */
+        .left-table {
+            background-color: white;
+            text-align: center;
+            margin-top: 100px;
+            margin-left: 40px;
+            width: 15%;
+        }
+
+
+        /* 内容展示区域中间列 */
+        .table {
+            background-color: whitesmoke;
+            text-align: center;
+            width: 60%;
+            margin-left: 60px;
+            padding-left: 80px;
+            padding-top: 20px;
+            padding-bottom: 420px;
+        }
+
+        .ta {
+            width: 90%;
+        }
+
+        .tab {
+            height: 50px;
+        }
+
+        h1, th {
+            text-align: center;
+        }
+
+        /* 链接的不同状态展示 */
+        a:link {
+            text-decoration: none;
+        }
+
+        /* unvisited link */
+        a:visited {
+            text-decoration: none;
+        }
+
+        /* visited link */
+        a:hover {
+            text-decoration: none;
+            color: #0f0f0f;
+        }
+
+        /* mouse over link */
+        a:active {
+            text-decoration: none;
+        }
+
+    </style>
+
+</head>
+
+<body>
+<div class="topnav">
+    <h1>一般用户博客列表页面</h1>
+</div>
+
+<div class="row">
+    <div class="left-table column table-bordered " style="width: 200px;height: 250px">
+        <img src="/img/user.jpg" style="width: 80px;height: 90px;margin-top: 60px" alt="Big Boat">
+        <p id="div" th:text="${name}">作者名字</p>
+        <input id="focus" type="button" th:value="${focus}"/>
+    </div>
+
+    <div class="table column">
+        <table class="table-bordered ta">
+            <thead>
+            <tr>
+                <th class="tab">id</th>
+                <th class="tab">author</th>
+                <th class="tab">title</th>
+                <th class="tab">description</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="blog:${blogs}">
+                <td class="tab" th:text="${blog.bid}">序号</td>
+                <td class="tab" th:text="${blog.author}">文章作者</td>
+                <td class="tab" th:text="${blog.title}">文章标题</td>
+                <td class="tab" th:text="${blog.description}">文章的描述</td>
+                <td>
+                    <a th:href="'/blogUser/blogLook/'+${blog.bid}">查看</a>
+                </td>
+
+                <!--<td>
+                    <a th:href="'/blogUser/blogDelete/'+${blog.bid}">删除</a>
+                </td>-->
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+</body>
+
+</html>

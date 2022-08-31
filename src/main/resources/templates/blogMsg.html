@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>博客索引</title>
+    <link rel="stylesheet" href="/css/my.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: auto;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        /* 头部样式 */
+        .header {
+            text-align: center;
+            margin: 10px;
+            height: 40px;
+            line-height: 40px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>个人博客聊天管理页面</h1>
+</div>
+
+<div>
+    <p>
+        <a th:href="'/blogmsg/websocket/'+${login}"></a>
+    </p>
+</div>
+
+</body>
+</html>

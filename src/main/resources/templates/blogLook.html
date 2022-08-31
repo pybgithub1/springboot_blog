@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>添加文章</title>
+    <link rel="stylesheet" href="/editormd/css/style.css" th:href="@{/editormd/css/style.css}"/>
+    <link rel="stylesheet" href="/editormd/css/editormd.css" th:href="@{/editormd/css/editormd.css}"/>
+    <link rel="shortcut icon" href="https://pandao.github.io/editor.md/favicon.ico" type="image/x-icon"/>
+    <style>
+        .row {
+            float: right;
+            padding-top: 20px;
+            padding-right: 100px;
+            padding-bottom: 20px;
+        }
+
+        h1, th {
+            text-align: center;
+        }
+
+        #textarea {
+            padding-left: 60px;
+        }
+
+        textarea {
+            padding-left: 20px;
+        }
+
+    </style>
+    <script src="/editormd/js/jquery.min.js" th:src="@{/editormd/js/jquery.min.js}"></script>
+    <script src="/editormd/editormd.js" th:src="@{/editormd/editormd.js}"></script>
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script>
+        var testEditor;
+        $(function () {
+
+            testEditor = editormd("textarea", {
+                width: "90%",
+                height: 640,
+                syncScrolling: "single",
+                path: "/editormd/lib/",
+
+                /**下述为新增，上面一行记得加逗号结束*/
+                /*指定需要显示的功能按钮*/
+                toolbarIcons: function () {
+                    return ["undo", "redo", "|", "bold", "italic", "ucwords", "uppercase", "lowercase", "|", "h1", "h2", "h3", "h4", "h5", "h6", "|", "list-ul", "list-ol", "table", "datetime", "hr", "||", "watch", "fullscreen", "preview", "releaseIcon", "index"]
+                },
+            });
+
+            
+            //进入页面之后就发送ajax请求，请求评论列表
+            var bid = document.getElementById("bid").value;
+            var user = document.getElementById("user11").value;
+            $.ajax({
+                    url: '/comment/commentlist/' + bid,
+                    type: 'get',
+                    success: function (data) {
+                        for (let i = 0; i < data.length; i++) {
+                            var trTD =
+                                "<tr><td>" + data[i].id + " " + "</td>" + "<td>" + data[i].user + " " + "</td>" + "<td>" +
+                                data[i].content + " " + "</td>" + "<td>" + "<a href='#'>" + "删除" + "</a>" + "</td></tr>";
+                            $("#tbody").append(trTD);
+                        }
+                        // 删除操作
+                        $("a").click(function () {
+                            var text = $(this).parent().parent().text();
+                            var split = text.split(" ");
+                            var cid = split[0];
+                            if (user == split[1]) {
+                                // 进行删除操作的后台请求
+                                $.ajax({
+                                    url: '/comment/commentDel/' + cid,
+                                    type: 'get',
+                                    success: function (data) {
+                                        alert(data + "页面");
+                                    }
+                                })
+                                //删除操作的前台显示
+                                $(this).parent().parent().remove();
+                            } else {
+                                alert("删除失败！+页面");
+                            }
+                        })
+
+                    }
+                }
+            )
+
+            /*//处理点击评论进行评论的相关操作的前面思路代码
+            var submit = document.getElementById("submit");
+            submit.onclick = function () {
+                var com = document.getElementById("comment").value;
+                var bid = document.getElementById("bid").value;
+                $.ajax({
+                    url: '/comment/publish',
+                    type: 'post',
+                    data: {
+                        "comment": com,
+                        "bid": bid
+                    },
+                    success: function (data) {
+                        var trTD =
+                            "<tr><td>" + data.id + " " + "</td>" + "<td>" + data.user + " " + "</td>" + "<td>" +
+                            data.content + " " + "</td>" + "<td>" + "<a href='#'>" + "删除" + "</a>" + "</td></tr>";
+                        $("#tbody").append(trTD);
+                        // 删除操作
+                        $("a").click(function () {
+                            var text = $(this).parent().parent().text();
+                            var split = text.split(" ");
+                            var cid = split[0];
+                            if (user == split[1]) {
+                                //进行删除操作的后台请求
+                                $.ajax({
+                                    url: '/comment/commentDel/' + cid,
+                                    type: 'get',
+                                    success: function (data) {
+                                        alert(data+"发布");
+                                    }
+                                })
+                                //删除操作的前台显示
+                                $(this).parent().parent().remove();
+                            } else {
+                                alert("删除失败！");
+                            }
+                        })
+                    },
+                    datatype: "json",
+                })
+            }*/
+
+            //处理点击评论进行评论的相关操作的后续改进代码
+            var submit = document.getElementById("submit");
+            submit.onclick = function () {
+                var com = document.getElementById("comment").value;
+                var bid = document.getElementById("bid").value;
+                $.ajax({
+                    url: '/comment/publish',
+                    type: 'post',
+                    data: {
+                        "comment": com,
+                        "bid": bid
+                    },
+                    success: function (data) {
+                        $("#tbody").empty();
+                        for (let i = 0; i < data.length; i++) {
+                            var trTD =
+                                "<tr><td>" + data[i].id + " " + "</td>" + "<td>" + data[i].user + " " + "</td>" + "<td>" +
+                                data[i].content + " " + "</td>" + "<td>" + "<a href='#'>" + "删除" + "</a>" + "</td></tr>";
+                            $("#tbody").append(trTD);
+                        }
+                        // 删除操作
+                        $("a").click(function () {
+                            var text = $(this).parent().parent().text();
+                            var split = text.split(" ");
+                            var cid = split[0];
+                            if (user == split[1]) {
+                                // 进行删除操作的后台请求
+                                $.ajax({
+                                    url: '/comment/commentDel/' + cid,
+                                    type: 'get',
+                                    success: function (data) {
+                                        alert(data + "发布");
+                                    }
+                                })
+                                //删除操作的前台显示
+                                $(this).parent().parent().remove();
+                            } else {
+                                alert("删除失败！+发布");
+                            }
+                        })
+
+                    }
+                })
+            }
+        })
+
+    </script>
+
+
+</head>
+<body>
+
+<h1>展示文章页面</h1>
+
+<div id="layout">
+    <form name="mdEditorForm">
+        <div class="row">
+            <label>序号</label>
+            <input type="text" id="bid" class="form-control" name="bid" th:value="${blog.bid}" readonly>
+            <label>作者</label>
+            <input type="text" class="form-control" name="author" th:value="${blog.author}" readonly>
+            <label>标题</label>
+            <input type="text" class="form-control" name="title" th:value="${blog.title}" readonly>
+            <label>描述</label>
+            <input type="text" class="form-control" name="description" th:value="${blog.description}" readonly>
+            <label>登陆者</label>
+            <input id="user11" type="text" th:value="${user11}"/>
+        </div>
+
+        <div id="textarea">
+            <textarea name="content" type="text" th:text="${blog.content}" rows="60" cols="250">文章的内容</textarea>
+        </div>
+
+    </form>
+
+</div>
+<div>
+
+    <p style="float: left;margin-left: 100px;font-size: 20px">评论区</p><br/><br/>
+    <input id="comment" name="comment" type="text" style="float: left;margin-left: 100px;width: 600px;height: 35px"
+           placeholder="请输入您的评论"/>
+    <input id="submit" type="submit" value="提交"
+           style="display: inline ;margin-left: -1060px;margin-top: 5px"/><br/><br/>
+    <div>
+        <table id="tb" style="float: left;margin-left: 100px;margin-top: 5px">
+            <thead>
+            <tr>
+                <td>评论序号</td>
+                <td>用户名称</td>
+                <td>发言列表</td>
+            </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+
+
+</script>
+</body>
+</html>
